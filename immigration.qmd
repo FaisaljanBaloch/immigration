@@ -13,9 +13,38 @@ library(primer.data)
 library(tidymodels)
 library(broom)
 library(gt)
+library(marginaleffects)
 ```
 
-How do people decide for whom they will vote? Certainly many factors, from candidate characteristics to issue stances, play a role in shaping electoral outcomes. Using a data from a 2012 experiment among Boston commuters, I estimate the causal effect of exposure to Spanish speakers on attitudes toward immigration among registered voters in Georgia today. There is some concern that the stability of data might have changed since it was collected in 2012. I modeled person attitude toward immigration measured on a 3 to 15 scale, as a linear function of treatment.
+```{r}
+#| cache: true
+fit_att <- linear_reg(engine = "lm") |> 
+  fit(att_end ~ treatment, data = trains)
+```
+
+```{r}
+avg_comparisons(fit_att) |>
+ggplot(aes(x = term, y = estimate, color = treatment)) +
+  geom_pointrange(aes(ymin = conf.low, ymax = conf.high), color = "#1f77b4", size = 1.1) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  coord_flip() +
+  labs(
+    title = "Estimated Effect of Treatment on Attitudes Toward Immigration",
+    subtitle = "Hearing Spanish-speakers makes people more conservative about immigration",
+    x = "",
+    y = "Average Causal Effect (Treated - Control)",
+    caption = "Source: Boston Commuters (2012)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    plot.subtitle = element_text(color = "gray20"),
+    plot.caption = element_text(size = 10),
+    axis.title.y = element_blank()
+  )
+```
+
+How do people decide for whom they will vote? Certainly many factors, from candidate characteristics to issue stances, play a role in shaping electoral outcomes. Using a data from a 2012 experiment among Boston commuters, I estimate the causal effect of exposure to Spanish speakers on attitudes toward immigration among registered voters in Georgia today. There is some concern that the stability of data might have changed since it was collected in 2012. I modeled person attitude toward immigration measured on a 3 to 15 scale, as a linear function of treatment. I found that 1.55 effect is the difference between average attitudes toward immigration among Republicans and Democrats.
 
 $$
 Y = \beta_0 + \beta_1 X_1 + \cdots + \beta_n X_n + \epsilon, \quad \varepsilon \sim \mathcal{N}(0, \sigma^2)
@@ -24,12 +53,6 @@ $$
 $$
 \hat{AttrEnd}_i = 8.45 + 1.55 \cdot \text{treatmentTreated}_i
 $$
-
-```{r}
-#| cache: true
-fit_att <- linear_reg(engine = "lm") |> 
-  fit(att_end ~ treatment, data = trains)
-```
 
 ```{r}
 # Make a nice table

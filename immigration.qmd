@@ -10,6 +10,12 @@ execute:
 #| message: false
 library(tidyverse)
 library(primer.data)
+library(tidymodels)
+library(broom)
 ```
 
-How do people decide for whom they will vote? Certainly many factors, from candidate characteristics to issue stances, play a role in shaping electoral outcomes. Using a data from a 2012 experiment among Boston commuters, I estimate the causal effect of exposure to Spanish speakers on attitudes toward immigration among registered voters in Georgia today.
+How do people decide for whom they will vote? Certainly many factors, from candidate characteristics to issue stances, play a role in shaping electoral outcomes. Using a data from a 2012 experiment among Boston commuters, I estimate the causal effect of exposure to Spanish speakers on attitudes toward immigration among registered voters in Georgia today. There is some concern that the stability of data might have changed since it was collected in 2012.
+
+$$
+Y = \beta_0 + \beta_1 X_1 + \cdots + \beta_n X_n + \epsilon, \quad \varepsilon \sim \mathcal{N}(0, \sigma^2)
+$$

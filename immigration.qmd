@@ -12,10 +12,40 @@ library(tidyverse)
 library(primer.data)
 library(tidymodels)
 library(broom)
+library(gt)
 ```
 
-How do people decide for whom they will vote? Certainly many factors, from candidate characteristics to issue stances, play a role in shaping electoral outcomes. Using a data from a 2012 experiment among Boston commuters, I estimate the causal effect of exposure to Spanish speakers on attitudes toward immigration among registered voters in Georgia today. There is some concern that the stability of data might have changed since it was collected in 2012.
+How do people decide for whom they will vote? Certainly many factors, from candidate characteristics to issue stances, play a role in shaping electoral outcomes. Using a data from a 2012 experiment among Boston commuters, I estimate the causal effect of exposure to Spanish speakers on attitudes toward immigration among registered voters in Georgia today. There is some concern that the stability of data might have changed since it was collected in 2012. I modeled person attitude toward immigration measured on a 3 to 15 scale, as a linear function of treatment.
 
 $$
 Y = \beta_0 + \beta_1 X_1 + \cdots + \beta_n X_n + \epsilon, \quad \varepsilon \sim \mathcal{N}(0, \sigma^2)
 $$
+
+$$
+\hat{AttrEnd}_i = 8.45 + 1.55 \cdot \text{treatmentTreated}_i
+$$
+
+```{r}
+#| cache: true
+fit_att <- linear_reg(engine = "lm") |> 
+  fit(att_end ~ treatment, data = trains)
+```
+
+```{r}
+# Make a nice table
+tidy(fit_att, conf.int = TRUE) |>
+  mutate(across(c(estimate, std.error, conf.low, conf.high), \(x) round(x, 2)),
+         p.value = format.pval(p.value, digits = 3, eps = 1e-3)) |>
+  gt() |>
+  tab_header(
+    title = "Regression Results"
+  ) |>
+  cols_label(
+    term = "Term",
+    estimate = "Estimate",
+    std.error = "Std. Error",
+    p.value = "P-value",
+    conf.low = "CI Lower",
+    conf.high = "CI Upper"
+  )
+```
